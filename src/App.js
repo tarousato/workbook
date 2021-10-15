@@ -1,72 +1,73 @@
 import React from 'react';
 import './App.css';
-
-const dataList=[
-  {
-    que: "去年の日本一",
-    ans: ["ソフバン"],
-    mis: ["キヨ人","ヤク"]
-  },
-  {
-    que: "リーグ一",
-    ans: ["キヨ人","ソフバン"],
-    mis: ["ヤク","ハム","虎","檻"]
-  }
-]
+//import { dataList } from './data';
+import { dataList } from './dataTest';
 
 function Que(props){
   return(
-    <div>{props.i+1}. {props.que}</div>
+    <div style={{whiteSpace: 'pre-line'}}>{props.i+1}. {props.que}</div>
   )
 }
 function Sel(props){
-  return(
-    <div><label>
-      <input
-        type="checkbox"
-        name="inputNames"
-        value={props.i}
-      />
-      {props.sel} {props.isA}
-    </label></div>
-  )
+  let span = <span>{props.sel}</span>;
+  (props.isClick === null) ?
+    span = span :
+    (props.isA) ?
+      span = <span>正解 {props.sel}</span> :
+      (props.isCheck) ?
+        span = <span>違う {props.sel}</span> :
+        span = span
+  ;
+  return( span );
 }
 class Sec extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      checked: this.props.select.map(d=>false),
+      isCheck: this.props.select.map(d=>false),
       isA: this.props.select.map(d=>d[1]),
+      isClick: null,
     }
     this.handleChange = this.handleChange.bind(this);
   }
   handleChange(e) {
     const checkBox = this.state;
-    checkBox.checked[e.target.id] = !this.state.checked[e.target.id];
+    checkBox.isCheck[e.target.id] = !this.state.isCheck[e.target.id];
     this.setState(checkBox);
   }
   checkBtn(e){
-    if(this.state.checked.toString() === this.state.isA.toString()){
-      alert("ok");
-    }
+    const isJudge = this.state.isCheck.toString() === this.state.isA.toString();
+    this.setState({...this.state,isClick:isJudge});
   }
 
+
   render() {
+    const {isCheck,isA,isClick} = this.state;
     const selectList = this.props.select.map((d,i) =>
-      <div><label>
+      <div key={i.toString()}><label>
         <input
           id={i}
           type="checkbox"
           name="inputNames"
-          onChange={this.handleChange} />
-        {d[0]} {d[1]}
+          onChange={this.handleChange}
+          disabled={(isClick !== null)}
+        />
+        <Sel
+          sel={d[0]}
+          isClick={isClick}
+          isA={isA[i]}
+          isCheck={isCheck[i]}
+        />
       </label></div>
     );
     return (
       <div>
         <Que i={this.props.i} que={this.props.que} />
         {selectList}
-        <button onClick={() => this.checkBtn()}>check</button>
+        <button
+          onClick={() => this.checkBtn()}
+          disabled={(isClick !== null)}
+        >check</button>
       </div>
     );
   }
@@ -76,14 +77,19 @@ class Sec extends React.Component {
 
 class App extends React.Component {
   render() {
+    const data = shuffle(dataList);
     return (
       <div className="Ap">
-        {dataList.map((data,i) => {
+        {data.map((data,i) => {
           const ans = (data.ans).map(d => [d,true]);
           const mis = (data.mis).map(d => [d,false]);
-          const select = ans.concat(mis);
+          const select = shuffle(ans.concat(mis));
 
-          return <Sec que={data.que} select={select} i={i} />
+          return(
+            <div key={i.toString()}>
+              <Sec que={data.que} select={select} i={i} />
+            </div>
+          );
         })}
       </div>
     );
@@ -91,3 +97,11 @@ class App extends React.Component {
 }
 
 export default App;
+
+const shuffle = ([...array]) => {
+  for (let i = array.length - 1; i >= 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
