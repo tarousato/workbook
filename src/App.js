@@ -5,7 +5,7 @@ import { dataList } from './dataTest';
 
 function Que(props){
   return(
-    <div style={{whiteSpace: 'pre-line'}}>{props.i+1}. {props.que}</div>
+    <div className="que" style={{whiteSpace: 'pre-line'}}>{props.i+1}. {props.que}</div>
   )
 }
 function Sel(props){
@@ -13,9 +13,9 @@ function Sel(props){
   (props.isClick === null) ?
     span = span :
     (props.isA) ?
-      span = <span>正解 {props.sel}</span> :
+      span = <span className="success">{props.sel}</span> :
       (props.isCheck) ?
-        span = <span>違う {props.sel}</span> :
+        span = <span className="fail">{props.sel}</span> :
         span = span
   ;
   return( span );
@@ -44,7 +44,7 @@ class Sec extends React.Component {
   render() {
     const {isCheck,isA,isClick} = this.state;
     const selectList = this.props.select.map((d,i) =>
-      <div key={i.toString()}><label>
+      <div key={i.toString()} className="sel"><label>
         <input
           id={i}
           type="checkbox"
@@ -60,11 +60,15 @@ class Sec extends React.Component {
         />
       </label></div>
     );
+    const click = isClick === null ?
+                  "non" :
+                  isClick ? "success" : "fail";
     return (
       <div>
         <Que i={this.props.i} que={this.props.que} />
         {selectList}
         <button
+          className={click}
           onClick={() => this.checkBtn()}
           disabled={(isClick !== null)}
         >check</button>
