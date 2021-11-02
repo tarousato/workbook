@@ -9,16 +9,15 @@ function Que(props){
   )
 }
 function Sel(props){
-  let span = <span>{props.sel}</span>;
-  (props.isClick === null) ?
-    span = span :
-    (props.isA) ?
-      span = <span className="success">{props.sel}</span> :
-      (props.isCheck) ?
-        span = <span className="fail">{props.sel}</span> :
-        span = span
-  ;
-  return( span );
+  const className = props.isJudge === null ?
+                    "non" :
+                    props.isA ?
+                      "success" :
+                      props.isCheck ?
+                        "fail" :
+                        "non";
+
+  return(<span className={className}>{props.sel}</span>);
 }
 class Sec extends React.Component {
   constructor(props) {
@@ -26,7 +25,7 @@ class Sec extends React.Component {
     this.state = {
       isCheck: this.props.select.map(d=>false),
       isA: this.props.select.map(d=>d[1]),
-      isClick: null,
+      isJudge: null,
     }
     this.handleChange = this.handleChange.bind(this);
   }
@@ -37,12 +36,12 @@ class Sec extends React.Component {
   }
   checkBtn(e){
     const isJudge = this.state.isCheck.toString() === this.state.isA.toString();
-    this.setState({...this.state,isClick:isJudge});
+    this.setState({...this.state,isJudge:isJudge});
   }
 
 
   render() {
-    const {isCheck,isA,isClick} = this.state;
+    const {isCheck,isA,isJudge} = this.state;
     const selectList = this.props.select.map((d,i) =>
       <div key={i.toString()} className="sel"><label>
         <input
@@ -50,37 +49,42 @@ class Sec extends React.Component {
           type="checkbox"
           name="inputNames"
           onChange={this.handleChange}
-          disabled={(isClick !== null)}
+          disabled={(isJudge !== null)}
         />
         <Sel
           sel={d[0]}
-          isClick={isClick}
+          isJudge={isJudge}
           isA={isA[i]}
           isCheck={isCheck[i]}
         />
       </label></div>
     );
-    const click = isClick === null ?
+    const judge = isJudge === null ?
                   "non" :
-                  isClick ? "success" : "fail";
+                  isJudge ? "success" : "fail";
     return (
       <div>
         <Que i={this.props.i} que={this.props.que} />
         {selectList}
         <button
-          className={click}
+          className={judge}
           onClick={() => this.checkBtn()}
-          disabled={(isClick !== null)}
+          disabled={(isJudge !== null)}
         >check</button>
       </div>
     );
   }
 }
 
-
-
 class App extends React.Component {
   render() {
+    const shuffle = ([...array]) => {
+      for (let i = array.length - 1; i >= 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
     const data = shuffle(dataList);
     return (
       <div className="Ap">
@@ -101,11 +105,3 @@ class App extends React.Component {
 }
 
 export default App;
-
-const shuffle = ([...array]) => {
-  for (let i = array.length - 1; i >= 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
